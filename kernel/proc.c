@@ -688,3 +688,20 @@ procdump(void)
     printf("\n");
   }
 }
+
+// Get process information for top command
+// Copy process info to user space
+void
+ktop(void)
+{
+  struct proc *p;
+
+  for(p = proc; p < &proc[NPROC]; p++){
+    acquire(&p->lock);
+    if(p->state != UNUSED && p->state != USED){
+      // Print: PID, Name, Memory Size
+      printf("%d\t%s\t%ld\n", p->pid, p->name, p->sz);
+    }
+    release(&p->lock);
+  }
+}
