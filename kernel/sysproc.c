@@ -114,3 +114,15 @@ sys_top(void)
   ktop();
   return 0;
 }
+
+uint64
+sys_next_process(void)
+{
+  int before_pid;
+  uint64 addr;
+
+  argint(0, &before_pid);
+  argaddr(1, &addr);
+  
+  return knext_process(before_pid, addr);
+}

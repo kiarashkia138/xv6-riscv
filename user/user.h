@@ -2,6 +2,18 @@
 
 struct stat;
 
+// Process state enum for user space
+enum procstate { UNUSED, USED, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
+
+// Process data structure for next_process system call
+struct process_data {
+    int pid;
+    int parent_id;
+    int head_size;
+    enum procstate state;
+    char name[16];
+};
+
 // system calls
 int fork(void);
 int exit(int) __attribute__((noreturn));
@@ -25,6 +37,7 @@ char* sys_sbrk(int,int);
 int pause(int);
 int uptime(void);
 int top(void);
+int next_process(int, struct process_data*);
 
 // ulib.c
 int stat(const char*, struct stat*);

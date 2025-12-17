@@ -705,3 +705,56 @@ ktop(void)
     release(&p->lock);
   }
 }
+
+// Get next process information after the given PID
+// Returns 1 if a process is found, 0 otherwise
+int
+knext_process(int before_pid, uint64 addr)
+{
+  struct proc *p;
+  struct proc *found = 0;
+  int found_pid = __INT_MAX__;
+
+  // Find the process with the smallest PID greater than before_pid
+  for(p = proc; p < &proc[NPROC]; p++){
+    acquire(&p->lock);
+    if(p->state != UNUSED && p->state != USED && p->pid > before_pid){
+      if(p->pid < found_pid){
+        found_pid = p->pid;
+        found = p;
+      }
+    }
+    release(&p->lock);
+  }
+
+  // If we found a process, copy its data to user space
+  if(found){
+    struct proc *p = found;
+    acquire(&p->lock);
+    
+    // Prepare the data structure
+    struct {
+      int pid;
+      int parent_id;
+      int head_size;
+      int state;
+      char name[16];
+    } proc_data;
+    
+    proc_data.pid = p->pid;
+    proc_data.parent_id = p->parent ? p->parent->pid : 0;
+    proc_data.head_size = p->sz;
+    proc_data.state = p->state;
+    memmove(proc_data.name, p->name, 16);
+    
+    release(&p->lock);
+    
+    // Copy to user space
+    if(copyout(myproc()->pagetable, addr, (char *)&proc_data, sizeof(proc_data)) < 0)
+      return -1;
+    
+    return 1;
+  }
+  
+  return 0;
+}

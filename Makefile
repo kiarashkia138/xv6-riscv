@@ -145,6 +145,7 @@ UPROGS=\
 	$U/_dorphan\
 	$U/_hello\
 	$U/_top\
+	$U/_forktest_tree\
 
 fs.img: mkfs/mkfs README $(UPROGS)
 	mkfs/mkfs fs.img README $(UPROGS)
